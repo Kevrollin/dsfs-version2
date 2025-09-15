@@ -45,9 +45,9 @@ export default function FeedScreen() {
     setRefreshing(false);
   };
 
-  // Trigger funding modal for a post
-  const openFundModal = (postId: string) => {
-    setFundPostId(postId);
+  // Trigger funding modal (platform-level or post-level)
+  const openFundModal = (postId?: string) => {
+    if (postId) setFundPostId(postId);
     setFundModalVisible(true);
   };
 
@@ -58,9 +58,13 @@ export default function FeedScreen() {
 
   const handleFund = (amount: number) => {
     if (fundPostId) {
-      fundPost(fundPostId, amount); // feed store handles the actual funding logic
-      closeFundModal();
+      // post-specific funding
+      fundPost(fundPostId, amount);
+    } else {
+      // platform-level funding
+      console.log('Platform-level fund:', amount);
     }
+    closeFundModal();
   };
 
   // User modal
@@ -100,6 +104,12 @@ export default function FeedScreen() {
           <TouchableOpacity style={styles.iconButton}>
             <Plus size={22} color="#FFFFFF" />
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.fundButton}
+            onPress={() => openFundModal()} // independent, no postId
+          >
+            <Text style={styles.fundButtonText}>Fund</Text>
+          </TouchableOpacity>
         </View>
       </LinearGradient>
 
@@ -113,11 +123,15 @@ export default function FeedScreen() {
         showsVerticalScrollIndicator={false}
       >
         {loading && posts.length === 0 ? (
-          <Text style={[styles.loadingText, { color: theme.textTertiary }]}>Loading projects...</Text>
+          <Text style={[styles.loadingText, { color: theme.textTertiary }]}>
+            Loading projects...
+          </Text>
         ) : posts.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={[styles.emptyText, { color: theme.text }]}>No projects yet 👀</Text>
-            <Text style={[styles.emptySubtext, { color: theme.textTertiary }]}>Pull down to refresh or add a new project.</Text>
+            <Text style={[styles.emptySubtext, { color: theme.textTertiary }]}>
+              Pull down to refresh or add a new project.
+            </Text>
           </View>
         ) : (
           posts.map((post) => (
@@ -163,13 +177,12 @@ export default function FeedScreen() {
       )}
 
       {/* Funding Modal */}
-      {fundPostId && (
+      {fundModalVisible && (
         <FundingModal
           visible={fundModalVisible}
           onClose={closeFundModal}
           onFund={handleFund}
         />
-
       )}
     </View>
   );
@@ -189,6 +202,20 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 22, fontWeight: '700' },
   headerActions: { flexDirection: 'row', alignItems: 'center' },
   iconButton: { marginLeft: 16 },
+  fundButton: {
+    marginLeft: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#FFFFFF',
+    backgroundColor: '#FFFFFF20',
+  },
+  fundButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 14,
+  },
   scrollView: { flex: 1 },
   scrollContent: { paddingHorizontal: 12, paddingTop: 12, paddingBottom: 40 },
   loadingText: { textAlign: 'center', marginTop: 40, fontSize: 16 },

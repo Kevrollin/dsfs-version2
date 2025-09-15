@@ -1,238 +1,209 @@
-import React, { useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import Avatar from '../../components/Avatar';
-import ProgressBar from '../../components/ProgressBar';
-import FundButton from '../../components/FundButton';
-import { useStudentStore } from '../../store/useStudentStore';
-import { useColorScheme } from '../../hooks/useColorScheme';
-import { getTheme } from '../../constants/themes';
+import React, { useEffect, useState, useCallback } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  TextInput,
+  FlatList,
+  Image,
+  Dimensions,
+} from "react-native";
+import { Search } from "lucide-react-native";
+import { useFeedStore } from "../../store/useFeedStore";
+import { useColorScheme } from "../../hooks/useColorScheme";
+import { getTheme } from "../../constants/themes";
+import FundingModal from "../../components/modals/FundingModal";
+import ProgressBar from "../../components/ProgressBar";
+
+// Mock data
+import { featuredProjects } from "../../mock/projects";
+import { stockImages } from "../../mock/stockImages"; // Array of { id, uri }
+
+const { width } = Dimensions.get("window");
+const CARD_WIDTH = width * 0.8;
+const STOCK_IMAGE_SIZE = width / 4 - 12; // 4 images per row with padding
+
+const categories = ["For You", "Trending", "Projects", "People", "Near You"];
 
 export default function ExploreScreen() {
-  const { students, loading, fetchStudents, fundStudent } = useStudentStore();
+  const { posts, loading, refreshPosts, fundPost } = useFeedStore();
   const { colorScheme } = useColorScheme();
   const theme = getTheme(colorScheme);
 
+  const [activeTab, setActiveTab] = useState("For You");
+  const [fundModalVisible, setFundModalVisible] = useState(false);
+  const [fundPostId, setFundPostId] = useState<string | null>(null);
+
   useEffect(() => {
-    fetchStudents();
+    refreshPosts();
+  }, [refreshPosts]);
+
+  const openFundModal = useCallback((postId: string) => {
+    setFundPostId(postId);
+    setFundModalVisible(true);
   }, []);
 
-  const handleFundStudent = (studentId: string, studentName: string) => {
-    Alert.alert(
-      `Fund ${studentName}`,
-      'Choose an amount to support this student:',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: '$25',
-          onPress: () => {
-            fundStudent(studentId, 25);
-            Alert.alert('Success!', `Thank you for supporting ${studentName}!`);
-          },
-        },
-        {
-          text: '$50',
-          onPress: () => {
-            fundStudent(studentId, 50);
-            Alert.alert('Success!', `Thank you for supporting ${studentName}!`);
-          },
-        },
-        {
-          text: '$100',
-          onPress: () => {
-            fundStudent(studentId, 100);
-            Alert.alert('Success!', `Thank you for supporting ${studentName}!`);
-          },
-        },
-      ],
-      { cancelable: true }
-    );
-  };
+  const closeFundModal = useCallback(() => {
+    setFundPostId(null);
+    setFundModalVisible(false);
+  }, []);
+
+  const handleFund = useCallback((amount: number) => {
+    if (fundPostId) {
+      fundPost(fundPostId, amount);
+      closeFundModal();
+    }
+  }, [fundPostId, fundPost, closeFundModal]);
+
+  // 🔹 Stock images vertical scroll (4 per row)
+  const renderStockImage = useCallback(({ item }: { item: any }) => (
+    <View style={[styles.stockImageCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+      <Image source={{ uri: item.uri }} style={styles.stockImage} />
+    </View>
+  ), [theme]);
+
+  // 🔹 Ongoing campaigns horizontal with snap
+  const renderCampaign = useCallback(({ item }: { item: any }) => (
+    <View style={[styles.featureCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+      <Image source={{ uri: item.image }} style={styles.featureImage} />
+      <Text style={[styles.featureTitle, { color: theme.text }]} numberOfLines={1}>
+        {item.title}
+      </Text>
+      <ProgressBar current={item.funded} target={item.goal} showAmount={false} />
+      <TouchableOpacity
+        style={[styles.fundButton, { backgroundColor: theme.primary }]}
+        onPress={() => openFundModal(item.id)}
+      >
+        <Text style={styles.fundButtonText}>Fund</Text>
+      </TouchableOpacity>
+    </View>
+  ), [theme, openFundModal]);
+
+  const ListHeader = useCallback(() => (
+    <>
+      {/* Search Bar */}
+      <View style={[styles.searchBar, { backgroundColor: theme.card, borderColor: theme.border }]}>
+        <Search size={18} color={theme.textSecondary} style={{ marginRight: 8 }} />
+        <TextInput
+          placeholder="Search people, posts, or projects..."
+          placeholderTextColor={theme.textTertiary}
+          style={[styles.searchInput, { color: theme.text }]}
+        />
+      </View>
+
+      {/* Category Tabs */}
+      <FlatList
+        data={categories}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(cat) => cat}
+        contentContainerStyle={styles.tabs}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={[styles.tab, activeTab === item && { borderBottomColor: theme.primary, borderBottomWidth: 2 }]}
+            onPress={() => setActiveTab(item)}
+          >
+            <Text style={[styles.tabText, { color: activeTab === item ? theme.primary : theme.textSecondary }]}>
+              {item}
+            </Text>
+          </TouchableOpacity>
+        )}
+      />
+
+      {/* Stock images grid - vertical scroll */}
+      <Text style={[styles.sectionTitle, { color: theme.text }]}>Explore Images</Text>
+      <FlatList
+        data={stockImages}
+        renderItem={renderStockImage}
+        keyExtractor={(item) => item.id}
+        numColumns={4}
+        scrollEnabled={false} // let main FlatList scroll
+        contentContainerStyle={{ paddingHorizontal: 6, paddingBottom: 16 }}
+      />
+
+      {/* Ongoing campaigns horizontal with snap */}
+      <Text style={[styles.sectionTitle, { color: theme.text }]}>Ongoing Campaigns</Text>
+      <FlatList
+        data={featuredProjects}
+        renderItem={renderCampaign}
+        keyExtractor={(item) => item.id}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={CARD_WIDTH + 16} // snap width + margin
+        decelerationRate="fast"
+        contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 16 }}
+        ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+      />
+
+      <Text style={[styles.sectionTitle, { color: theme.text }]}>More Projects</Text>
+    </>
+  ), [theme, activeTab, renderStockImage, renderCampaign]);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={[styles.header, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
-        <Text style={[styles.headerTitle, { color: theme.text }]}>Discover Students</Text>
-        <Text style={[styles.headerSubtitle, { color: theme.textSecondary }]}>Support the next generation of innovators</Text>
-      </View>
-
-      <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+      <FlatList
+        data={loading && posts.length === 0 ? [] : posts}
+        keyExtractor={(item) => item.id}
+        numColumns={2}
+        contentContainerStyle={{ paddingBottom: 80 }}
+        ListHeaderComponent={ListHeader}
+        ListEmptyComponent={
+          <Text style={[styles.emptyText, { color: theme.textTertiary }]}>
+            {loading ? "Loading explore..." : "Nothing to explore yet 🚀"}
+          </Text>
+        }
+        renderItem={({ item, index }) => (
+          <TouchableOpacity
+            key={item.id}
+            style={[
+              styles.gridItem,
+              { backgroundColor: theme.card, borderColor: theme.border },
+              index % 2 === 0 ? { marginRight: 8 } : { marginLeft: 8 },
+            ]}
+            onPress={() => openFundModal(item.id)}
+          >
+            <Image source={{ uri: item.image }} style={styles.gridImage} />
+          </TouchableOpacity>
+        )}
         showsVerticalScrollIndicator={false}
-      >
-        {students.map((student) => (
-          <View key={student.id} style={[styles.studentCard, { backgroundColor: theme.card }]}>
-            <View style={styles.studentHeader}>
-              <View style={styles.studentInfo}>
-                <Avatar
-                  source={student.avatar}
-                  size="large"
-                  verified={student.isVerified}
-                />
-                <View style={styles.studentDetails}>
-                  <Text style={[styles.studentName, { color: theme.text }]}>{student.name}</Text>
-                  <Text style={[styles.studentUniversity, { color: theme.primary }]}>{student.university}</Text>
-                  <Text style={[styles.studentCourse, { color: theme.textSecondary }]}>{student.course} • {student.year}</Text>
-                  <Text style={[styles.studentGPA, { color: theme.textTertiary }]}>GPA: {student.gpa}</Text>
-                </View>
-              </View>
-              <FundButton
-                onPress={() => handleFundStudent(student.id, student.name)}
-                size="medium"
-              />
-            </View>
+      />
 
-            <Text style={[styles.studentBio, { color: theme.textSecondary }]}>{student.bio}</Text>
-
-            <View style={styles.fundingSection}>
-              <ProgressBar
-                current={student.currentFunding}
-                target={student.fundingGoal}
-                showAmount={true}
-              />
-            </View>
-
-            <View style={[styles.statsRow, { borderTopColor: theme.border }]}>
-              <View style={styles.statItem}>
-                <Text style={[styles.statNumber, { color: theme.text }]}>{student.supporters}</Text>
-                <Text style={[styles.statLabel, { color: theme.textTertiary }]}>Supporters</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={[styles.statNumber, { color: theme.text }]}>${student.totalFunded.toLocaleString()}</Text>
-                <Text style={[styles.statLabel, { color: theme.textTertiary }]}>Total Funded</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={[styles.statNumber, { color: theme.text }]}>{student.projects.length}</Text>
-                <Text style={[styles.statLabel, { color: theme.textTertiary }]}>Projects</Text>
-              </View>
-            </View>
-
-            {student.achievements.length > 0 && (
-              <View style={[styles.achievementsSection, { borderTopColor: theme.border }]}>
-                <Text style={[styles.achievementsTitle, { color: theme.text }]}>Key Achievements</Text>
-                {student.achievements.slice(0, 2).map((achievement, index) => (
-                  <Text key={index} style={[styles.achievement, { color: theme.textSecondary }]}>• {achievement}</Text>
-                ))}
-              </View>
-            )}
-          </View>
-        ))}
-      </ScrollView>
+      <FundingModal
+        visible={fundModalVisible}
+        onClose={closeFundModal}
+        onFund={handleFund}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  container: { flex: 1 },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    margin: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderWidth: 1,
   },
-  header: {
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    borderBottomWidth: 1,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 12,
-  },
-  studentCard: {
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  studentHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-  },
-  studentInfo: {
-    flexDirection: 'row',
-    flex: 1,
-    marginRight: 16,
-  },
-  studentDetails: {
-    marginLeft: 12,
-    flex: 1,
-  },
-  studentName: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  studentUniversity: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 2,
-  },
-  studentCourse: {
-    fontSize: 14,
-    marginBottom: 2,
-  },
-  studentGPA: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  studentBio: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 16,
-  },
-  fundingSection: {
-    marginBottom: 16,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    marginBottom: 16,
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  statLabel: {
-    fontSize: 12,
-    marginTop: 4,
-  },
-  achievementsSection: {
-    borderTopWidth: 1,
-    paddingTop: 16,
-  },
-  achievementsTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  achievement: {
-    fontSize: 13,
-    lineHeight: 18,
-    marginBottom: 4,
-  },
+  searchInput: { flex: 1, fontSize: 15 },
+  tabs: { paddingHorizontal: 12, paddingBottom: 8 },
+  tab: { marginRight: 20, paddingVertical: 6 },
+  tabText: { fontSize: 15, fontWeight: "600" },
+  sectionTitle: { fontSize: 18, fontWeight: "700", marginLeft: 12, marginTop: 12, marginBottom: 8 },
+  stockImageCard: { width: STOCK_IMAGE_SIZE, height: STOCK_IMAGE_SIZE, borderRadius: 8, borderWidth: 1, margin: 3, overflow: "hidden" },
+  stockImage: { width: "100%", height: "100%", resizeMode: "cover" },
+  featureCard: { width: CARD_WIDTH, marginRight: 16, borderWidth: 1, borderRadius: 16, padding: 12 },
+  featureImage: { width: "100%", height: 140, borderRadius: 12, marginBottom: 8 },
+  featureTitle: { fontSize: 16, fontWeight: "600", marginBottom: 6 },
+  fundButton: { marginTop: 10, paddingVertical: 6, borderRadius: 8, alignItems: "center" },
+  fundButtonText: { color: "#fff", fontWeight: "600" },
+  gridItem: { flexBasis: "47%", marginBottom: 12, borderRadius: 12, borderWidth: 1, overflow: "hidden" },
+  gridImage: { width: "100%", height: 160, resizeMode: "cover" },
+  overlay: { position: "absolute", bottom: 6, right: 6, backgroundColor: "rgba(0,0,0,0.6)", borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 },
+  overlayText: { color: "#fff", fontSize: 12, fontWeight: "600" },
+  emptyText: { textAlign: "center", marginTop: 40, fontSize: 16 },
 });

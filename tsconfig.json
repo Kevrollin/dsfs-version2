@@ -2,9 +2,17 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    "jsx": "react-jsx",                 // 👈 Add this for JSX support
+    "allowJs": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    "types": ["react", "react-native"]   // 👈 Helpful for JSX in RN
   },
   "include": [
     "**/*.ts",

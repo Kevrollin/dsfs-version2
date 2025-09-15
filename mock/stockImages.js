@@ -1,0 +1,23 @@
+// mockStockImages.ts
+export const stockImages = [
+  { id: "1", uri: "https://picsum.photos/id/1011/300/300" },
+  { id: "2", uri: "https://picsum.photos/id/1012/300/300" },
+  { id: "3", uri: "https://picsum.photos/id/1013/300/300" },
+  { id: "4", uri: "https://picsum.photos/id/1015/300/300" },
+  { id: "5", uri: "https://picsum.photos/id/1016/300/300" },
+  { id: "6", uri: "https://picsum.photos/id/1018/300/300" },
+  { id: "7", uri: "https://picsum.photos/id/1020/300/300" },
+  { id: "8", uri: "https://picsum.photos/id/1024/300/300" },
+  { id: "9", uri: "https://picsum.photos/id/1025/300/300" },
+  { id: "10", uri: "https://picsum.photos/id/1027/300/300" },
+  { id: "11", uri: "https://picsum.photos/id/1011/300/300" },
+  { id: "12", uri: "https://picsum.photos/id/1012/300/300" },
+  { id: "13", uri: "https://picsum.photos/id/1013/300/300" },
+  { id: "14", uri: "https://picsum.photos/id/1015/300/300" },
+  { id: "15", uri: "https://picsum.photos/id/1016/300/300" },
+  { id: "16", uri: "https://picsum.photos/id/1018/300/300" },
+  { id: "17", uri: "https://picsum.photos/id/1020/300/300" },
+  { id: "18", uri: "https://picsum.photos/id/1024/300/300" },
+  { id: "19", uri: "https://picsum.photos/id/1025/300/300" },
+  { id: "20", uri: "https://picsum.photos/id/1027/300/300" },
+];
