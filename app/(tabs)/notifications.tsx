@@ -2,18 +2,22 @@ import React from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import NotificationItem from '../../components/NotificationItem';
 import { mockNotifications } from '../../mock/notifications.js';
-import { colors } from '../../constants/colors';
+import { useColorScheme } from '../../hooks/useColorScheme';
+import { getTheme } from '../../constants/themes';
 
 export default function NotificationsScreen() {
+  const { colorScheme } = useColorScheme();
+  const theme = getTheme(colorScheme);
+
   const handleNotificationPress = (notification: any) => {
     console.log('Notification pressed:', notification.id);
     // TODO: Navigate to relevant screen based on notification type
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Notifications</Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={[styles.header, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
+        <Text style={[styles.headerTitle, { color: theme.text }]}>Notifications</Text>
       </View>
 
       <ScrollView 
@@ -35,20 +39,16 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.softwhite,
   },
   header: {
     paddingTop: 60,
     paddingHorizontal: 20,
     paddingBottom: 20,
-    backgroundColor: 'white',
     borderBottomWidth: 1,
-    borderBottomColor: colors.lightgray,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: colors.dark,
   },
   scrollView: {
     flex: 1,

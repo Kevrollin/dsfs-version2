@@ -9,7 +9,8 @@ import {
 } from 'react-native';
 import Modal from 'react-native-modal';
 import { Picker } from '@react-native-picker/picker';
-import { colors } from '../../constants/colors';
+import { useColorScheme } from '../../hooks/useColorScheme';
+import { getTheme } from '../../constants/themes';
 
 interface FundingModalProps {
   visible: boolean;
@@ -40,6 +41,8 @@ const countryCodes: Record<string, string> = {
 };
 
 export default function FundingModal({ visible, onClose, onFund, loggedInUser }: FundingModalProps) {
+  const { colorScheme } = useColorScheme();
+  const theme = getTheme(colorScheme);
   const [fullName, setFullName] = useState(loggedInUser?.fullName || '');
   const [country, setCountry] = useState(loggedInUser?.country || 'Kenya');
   const [paymentMethod, setPaymentMethod] = useState<string>('Card');
@@ -78,26 +81,27 @@ export default function FundingModal({ visible, onClose, onFund, loggedInUser }:
       animationIn="slideInUp"
       animationOut="slideOutDown"
     >
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.modal }]}>
         <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
-          <Text style={styles.title}>Fund this Project</Text>
+          <Text style={[styles.title, { color: theme.text }]}>Fund this Project</Text>
 
           {/* Full Name */}
-          <Text style={styles.label}>Full Name</Text>
+          <Text style={[styles.label, { color: theme.textSecondary }]}>Full Name</Text>
           <TextInput
             value={fullName}
             onChangeText={setFullName}
             placeholder="Enter your full name"
-            style={styles.input}
+            style={[styles.input, { borderColor: theme.inputBorder, backgroundColor: theme.input, color: theme.text }]}
+            placeholderTextColor={theme.placeholder}
           />
 
           {/* Country Picker */}
-          <Text style={styles.label}>Country</Text>
-          <View style={styles.pickerContainer}>
+          <Text style={[styles.label, { color: theme.textSecondary }]}>Country</Text>
+          <View style={[styles.pickerContainer, { borderColor: theme.inputBorder, backgroundColor: theme.input }]}>
             <Picker
               selectedValue={country}
               onValueChange={(value) => setCountry(value)}
-              style={styles.picker}
+              style={[styles.picker, { color: theme.text }]}
             >
               {countries.map((c) => (
                 <Picker.Item key={c} label={c} value={c} />
@@ -106,21 +110,21 @@ export default function FundingModal({ visible, onClose, onFund, loggedInUser }:
           </View>
 
           {/* Payment Method */}
-          <Text style={styles.label}>Payment Method</Text>
+          <Text style={[styles.label, { color: theme.textSecondary }]}>Payment Method</Text>
           <View style={styles.paymentMethodsContainer}>
             {paymentMethods.map((method) => (
               <TouchableOpacity
                 key={method}
                 style={[
                   styles.paymentMethodButton,
-                  paymentMethod === method && styles.paymentMethodSelected,
+                  { borderColor: theme.inputBorder, backgroundColor: paymentMethod === method ? theme.primary : theme.input },
                 ]}
                 onPress={() => setPaymentMethod(method)}
               >
                 <Text
                   style={[
                     styles.paymentMethodText,
-                    paymentMethod === method && { color: colors.white },
+                    { color: paymentMethod === method ? '#FFFFFF' : theme.text },
                   ]}
                 >
                   {method}
@@ -132,21 +136,21 @@ export default function FundingModal({ visible, onClose, onFund, loggedInUser }:
           {/* Dynamic Fields */}
           {paymentMethod === 'Mobile Money' && (
             <>
-              <Text style={styles.label}>Mobile Money Network</Text>
+              <Text style={[styles.label, { color: theme.textSecondary }]}>Mobile Money Network</Text>
               <View style={styles.paymentMethodsContainer}>
                 {(mobileNetworks[country] || []).map((network) => (
                   <TouchableOpacity
                     key={network}
                     style={[
                       styles.paymentMethodButton,
-                      mobileNetwork === network && styles.paymentMethodSelected,
+                      { borderColor: theme.inputBorder, backgroundColor: mobileNetwork === network ? theme.primary : theme.input },
                     ]}
                     onPress={() => setMobileNetwork(network)}
                   >
                     <Text
                       style={[
                         styles.paymentMethodText,
-                        mobileNetwork === network && { color: colors.white },
+                        { color: mobileNetwork === network ? '#FFFFFF' : theme.text },
                       ]}
                     >
                       {network}
@@ -155,15 +159,16 @@ export default function FundingModal({ visible, onClose, onFund, loggedInUser }:
                 ))}
               </View>
 
-              <Text style={styles.label}>Mobile Number</Text>
+              <Text style={[styles.label, { color: theme.textSecondary }]}>Mobile Number</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={styles.countryCode}>{countryCodes[country]}</Text>
+                <Text style={[styles.countryCode, { color: theme.text }]}>{countryCodes[country]}</Text>
                 <TextInput
                   value={mobileNumber}
                   onChangeText={setMobileNumber}
                   placeholder="Enter your mobile number"
                   keyboardType="phone-pad"
-                  style={[styles.input, { flex: 1, marginLeft: 8 }]}
+                  style={[styles.input, { flex: 1, marginLeft: 8, borderColor: theme.inputBorder, backgroundColor: theme.input, color: theme.text }]}
+                  placeholderTextColor={theme.placeholder}
                 />
               </View>
             </>
@@ -171,33 +176,36 @@ export default function FundingModal({ visible, onClose, onFund, loggedInUser }:
 
           {paymentMethod === 'Card' && (
             <>
-              <Text style={styles.label}>Card Number</Text>
+              <Text style={[styles.label, { color: theme.textSecondary }]}>Card Number</Text>
               <TextInput
                 value={cardNumber}
                 onChangeText={setCardNumber}
                 placeholder="XXXX XXXX XXXX XXXX"
                 keyboardType="numeric"
-                style={styles.input}
+                style={[styles.input, { borderColor: theme.inputBorder, backgroundColor: theme.input, color: theme.text }]}
+                placeholderTextColor={theme.placeholder}
               />
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <View style={{ flex: 1, marginRight: 8 }}>
-                  <Text style={styles.label}>Expiry</Text>
+                  <Text style={[styles.label, { color: theme.textSecondary }]}>Expiry</Text>
                   <TextInput
                     value={cardExpiry}
                     onChangeText={setCardExpiry}
                     placeholder="MM/YY"
                     keyboardType="numeric"
-                    style={styles.input}
+                    style={[styles.input, { borderColor: theme.inputBorder, backgroundColor: theme.input, color: theme.text }]}
+                    placeholderTextColor={theme.placeholder}
                   />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.label}>CVC</Text>
+                  <Text style={[styles.label, { color: theme.textSecondary }]}>CVC</Text>
                   <TextInput
                     value={cardCVC}
                     onChangeText={setCardCVC}
                     placeholder="CVC"
                     keyboardType="numeric"
-                    style={styles.input}
+                    style={[styles.input, { borderColor: theme.inputBorder, backgroundColor: theme.input, color: theme.text }]}
+                    placeholderTextColor={theme.placeholder}
                   />
                 </View>
               </View>
@@ -206,34 +214,36 @@ export default function FundingModal({ visible, onClose, onFund, loggedInUser }:
 
           {paymentMethod === 'Stellar' && (
             <>
-              <Text style={styles.label}>Stellar Wallet Address</Text>
+              <Text style={[styles.label, { color: theme.textSecondary }]}>Stellar Wallet Address</Text>
               <TextInput
                 value={stellarWallet}
                 onChangeText={setStellarWallet}
                 placeholder="Paste your Stellar wallet"
-                style={styles.input}
+                style={[styles.input, { borderColor: theme.inputBorder, backgroundColor: theme.input, color: theme.text }]}
+                placeholderTextColor={theme.placeholder}
               />
             </>
           )}
 
           {/* Amount */}
-          <Text style={styles.label}>Amount</Text>
+          <Text style={[styles.label, { color: theme.textSecondary }]}>Amount</Text>
           <TextInput
             value={amount}
             onChangeText={setAmount}
             placeholder="Enter amount"
             keyboardType="numeric"
-            style={styles.input}
+            style={[styles.input, { borderColor: theme.inputBorder, backgroundColor: theme.input, color: theme.text }]}
+            placeholderTextColor={theme.placeholder}
           />
 
           {/* Complete Button */}
-          <TouchableOpacity style={styles.fundButton} onPress={handleFund}>
-            <Text style={styles.fundButtonText}>Complete Funding</Text>
+          <TouchableOpacity style={[styles.fundButton, { backgroundColor: theme.primary }]} onPress={handleFund}>
+            <Text style={[styles.fundButtonText, { color: '#FFFFFF' }]}>Complete Funding</Text>
           </TouchableOpacity>
 
           {/* Cancel */}
-          <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-            <Text style={[styles.fundButtonText, { color: colors.gray[700] }]}>Cancel</Text>
+          <TouchableOpacity style={[styles.cancelButton, { backgroundColor: theme.gray[200] }]} onPress={onClose}>
+            <Text style={[styles.fundButtonText, { color: theme.text }]}>Cancel</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -244,23 +254,21 @@ export default function FundingModal({ visible, onClose, onFund, loggedInUser }:
 const styles = StyleSheet.create({
   modal: { justifyContent: 'flex-end', margin: 0 },
   container: {
-    backgroundColor: colors.white,
     padding: 24,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     maxHeight: '90%',
   },
-  title: { fontSize: 20, fontWeight: '700', color: colors.dark, marginBottom: 16 },
-  label: { fontSize: 14, fontWeight: '600', color: colors.gray[700], marginBottom: 6, marginTop: 12 },
-  input: { borderWidth: 1, borderColor: colors.gray[300], borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: colors.dark },
-  pickerContainer: { borderWidth: 1, borderColor: colors.gray[300], borderRadius: 8, marginBottom: 12 },
+  title: { fontSize: 20, fontWeight: '700', marginBottom: 16 },
+  label: { fontSize: 14, fontWeight: '600', marginBottom: 6, marginTop: 12 },
+  input: { borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14 },
+  pickerContainer: { borderWidth: 1, borderRadius: 8, marginBottom: 12 },
   picker: { height: 50, width: '100%' },
   paymentMethodsContainer: { flexDirection: 'row', flexWrap: 'wrap', marginVertical: 8 },
-  paymentMethodButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.gray[300], marginRight: 8, marginBottom: 8 },
-  paymentMethodSelected: { backgroundColor: colors.primary, borderColor: colors.primary },
-  paymentMethodText: { fontSize: 14, fontWeight: '600', color: colors.gray[700] },
-  countryCode: { fontSize: 14, fontWeight: '600', color: colors.dark },
-  fundButton: { backgroundColor: colors.primary, paddingVertical: 14, borderRadius: 12, marginTop: 16, alignItems: 'center' },
-  fundButtonText: { color: colors.white, fontWeight: '700', fontSize: 16 },
-  cancelButton: { paddingVertical: 14, borderRadius: 12, marginTop: 12, alignItems: 'center', backgroundColor: colors.gray[700] },
+  paymentMethodButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, marginRight: 8, marginBottom: 8 },
+  paymentMethodText: { fontSize: 14, fontWeight: '600' },
+  countryCode: { fontSize: 14, fontWeight: '600' },
+  fundButton: { paddingVertical: 14, borderRadius: 12, marginTop: 16, alignItems: 'center' },
+  fundButtonText: { fontWeight: '700', fontSize: 16 },
+  cancelButton: { paddingVertical: 14, borderRadius: 12, marginTop: 12, alignItems: 'center' },
 });

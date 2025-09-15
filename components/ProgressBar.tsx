@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors } from '../constants/colors';
+import { useColorScheme } from '../hooks/useColorScheme';
+import { getTheme } from '../constants/themes';
 
 interface ProgressBarProps {
   current: number;
@@ -15,6 +16,8 @@ export default function ProgressBar({
   showAmount = true,
   style,
 }: ProgressBarProps) {
+  const { colorScheme } = useColorScheme();
+  const theme = getTheme(colorScheme);
   const percentage = Math.min((current / target) * 100, 100);
 
   const formatCurrency = (amount: number) => {
@@ -23,16 +26,16 @@ export default function ProgressBar({
 
   return (
     <View style={[styles.container, style]}>
-      <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: `${percentage}%` }]} />
+      <View style={[styles.progressTrack, { backgroundColor: theme.gray[200] }]}>
+        <View style={[styles.progressFill, { width: `${percentage}%`, backgroundColor: theme.primary }]} />
       </View>
       {showAmount && (
         <View style={styles.amountContainer}>
-          <Text style={styles.currentAmount}>{formatCurrency(current)}</Text>
-          <Text style={styles.targetAmount}>of {formatCurrency(target)}</Text>
+          <Text style={[styles.currentAmount, { color: theme.text }]}>{formatCurrency(current)}</Text>
+          <Text style={[styles.targetAmount, { color: theme.textTertiary }]}>of {formatCurrency(target)}</Text>
         </View>
       )}
-      <Text style={styles.percentage}>{Math.round(percentage)}% funded</Text>
+      <Text style={[styles.percentage, { color: theme.primary }]}>{Math.round(percentage)}% funded</Text>
     </View>
   );
 }
@@ -43,13 +46,11 @@ const styles = StyleSheet.create({
   },
   progressTrack: {
     height: 8,
-    backgroundColor: colors.lightgray,
     borderRadius: 4,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: colors.primary,
     borderRadius: 4,
   },
   amountContainer: {
@@ -60,15 +61,12 @@ const styles = StyleSheet.create({
   currentAmount: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.dark,
   },
   targetAmount: {
     fontSize: 14,
-    color: colors.gray[500],
   },
   percentage: {
     fontSize: 12,
-    color: colors.primary,
     fontWeight: '500',
     marginTop: 4,
   },

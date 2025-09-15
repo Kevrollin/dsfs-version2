@@ -1,7 +1,8 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { DollarSign } from 'lucide-react-native';
-import { colors } from '../constants/colors';
+import { useColorScheme } from '../hooks/useColorScheme';
+import { getTheme } from '../constants/themes';
 
 interface FundButtonProps {
   onPress: () => void;
@@ -14,12 +15,14 @@ export default function FundButton({
   size = 'medium',
   style,
 }: FundButtonProps) {
+  const { colorScheme } = useColorScheme();
+  const theme = getTheme(colorScheme);
   const isSmall = size === 'small';
 
   return (
     <TouchableOpacity
       style={[
-        styles.button,
+        [styles.button, { backgroundColor: theme.primary }],
         isSmall ? styles.smallButton : styles.mediumButton,
         style,
       ]}
@@ -40,7 +43,6 @@ export default function FundButton({
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: colors.primary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

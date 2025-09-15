@@ -2,7 +2,8 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Heart, MessageCircle, DollarSign, CircleCheck as CheckCircle } from 'lucide-react-native';
 import Avatar from './Avatar';
-import { colors } from '../constants/colors';
+import { useColorScheme } from '../hooks/useColorScheme';
+import { getTheme } from '../constants/themes';
 
 interface NotificationItemProps {
   notification: any;
@@ -10,18 +11,21 @@ interface NotificationItemProps {
 }
 
 export default function NotificationItem({ notification, onPress }: NotificationItemProps) {
+  const { colorScheme } = useColorScheme();
+  const theme = getTheme(colorScheme);
+
   const getIcon = () => {
     switch (notification.type) {
       case 'like':
-        return <Heart size={20} color={colors.error} fill={colors.error} />;
+        return <Heart size={20} color={theme.error} fill={theme.error} />;
       case 'comment':
-        return <MessageCircle size={20} color={colors.primary} />;
+        return <MessageCircle size={20} color={theme.primary} />;
       case 'funding':
-        return <DollarSign size={20} color={colors.success} />;
+        return <DollarSign size={20} color={theme.success} />;
       case 'verification':
-        return <CheckCircle size={20} color={colors.primary} />;
+        return <CheckCircle size={20} color={theme.primary} />;
       default:
-        return <CheckCircle size={20} color={colors.gray[500]} />;
+        return <CheckCircle size={20} color={theme.textTertiary} />;
     }
   };
 
@@ -37,7 +41,11 @@ export default function NotificationItem({ notification, onPress }: Notification
 
   return (
     <TouchableOpacity
-      style={[styles.container, !notification.isRead && styles.unreadContainer]}
+      style={[
+        styles.container, 
+        { backgroundColor: theme.surface, borderBottomColor: theme.border },
+        !notification.isRead && { backgroundColor: theme.surfaceSecondary }
+      ]}
       onPress={onPress}
       activeOpacity={0.7}
     >
@@ -45,20 +53,24 @@ export default function NotificationItem({ notification, onPress }: Notification
         {notification.avatar ? (
           <Avatar source={notification.avatar} size="medium" />
         ) : (
-          <View style={styles.systemIcon}>
+          <View style={[styles.systemIcon, { backgroundColor: theme.gray[200] }]}>
             {getIcon()}
           </View>
         )}
       </View>
       
       <View style={styles.content}>
-        <Text style={[styles.message, !notification.isRead && styles.unreadMessage]}>
+        <Text style={[
+          styles.message, 
+          { color: notification.isRead ? theme.textSecondary : theme.text },
+          !notification.isRead && { fontWeight: '500' }
+        ]}>
           {notification.message}
         </Text>
-        <Text style={styles.timestamp}>{formatTime(notification.timestamp)}</Text>
+        <Text style={[styles.timestamp, { color: theme.textTertiary }]}>{formatTime(notification.timestamp)}</Text>
       </View>
       
-      {!notification.isRead && <View style={styles.unreadDot} />}
+      {!notification.isRead && <View style={[styles.unreadDot, { backgroundColor: theme.primary }]} />}
     </TouchableOpacity>
   );
 }
@@ -68,12 +80,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: 'white',
     borderBottomWidth: 1,
-    borderBottomColor: colors.lightgray,
-  },
-  unreadContainer: {
-    backgroundColor: colors.softwhite,
   },
   iconContainer: {
     marginRight: 12,
@@ -82,7 +89,6 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: colors.lightgray,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -91,23 +97,16 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: 14,
-    color: colors.gray[700],
     lineHeight: 18,
-  },
-  unreadMessage: {
-    color: colors.dark,
-    fontWeight: '500',
   },
   timestamp: {
     fontSize: 12,
-    color: colors.gray[500],
     marginTop: 4,
   },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: colors.primary,
     marginLeft: 8,
   },
 });

@@ -13,7 +13,8 @@ import {
   FlatList,
 } from 'react-native';
 import { Heart, MessageCircle, X } from 'lucide-react-native';
-import { colors } from '../../constants/colors';
+import { useColorScheme } from '../../hooks/useColorScheme';
+import { getTheme } from '../../constants/themes';
 
 const { height: screenHeight } = Dimensions.get('window');
 
@@ -40,6 +41,8 @@ export default function CommentModal({
   onAddComment,
   onOpenUserProfile,
 }: CommentModalProps) {
+  const { colorScheme } = useColorScheme();
+  const theme = getTheme(colorScheme);
   const slideAnim = useRef(new Animated.Value(screenHeight)).current;
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const [commentText, setCommentText] = useState('');
@@ -112,13 +115,13 @@ export default function CommentModal({
 
   const renderReplies = (replies: Comment[]) =>
     replies.map(reply => (
-      <View key={reply.id} style={styles.replyContainer}>
+      <View key={reply.id} style={[styles.replyContainer]}>
         <TouchableOpacity onPress={() => onOpenUserProfile(reply.username)}>
-          <Text style={styles.replyUsername}>@{reply.username}</Text>
+          <Text style={[styles.replyUsername, { color: theme.primary }]}>@{reply.username}</Text>
         </TouchableOpacity>
-        <Text style={styles.replyText}>{reply.text}</Text>
+        <Text style={[styles.replyText, { color: theme.textSecondary }]}>{reply.text}</Text>
         <TouchableOpacity style={styles.replyButton} onPress={() => setReplyToId(reply.id)}>
-          <Text style={styles.replyBtnText}>Reply</Text>
+          <Text style={[styles.replyBtnText, { color: theme.textTertiary }]}>Reply</Text>
         </TouchableOpacity>
         {reply.replies && reply.replies.length > 0 && (
           <View style={{ marginLeft: 16 }}>{renderReplies(reply.replies)}</View>
@@ -142,21 +145,21 @@ export default function CommentModal({
         <View style={styles.commentContainer}>
           <View style={styles.commentHeader}>
             <TouchableOpacity onPress={() => onOpenUserProfile(item.username)}>
-              <Text style={styles.commentUsername}>@{item.username}</Text>
+              <Text style={[styles.commentUsername, { color: theme.primary }]}>@{item.username}</Text>
             </TouchableOpacity>
             <View style={styles.commentActions}>
               <TouchableOpacity>
-                <Heart size={16} color={item.liked ? colors.error : colors.gray[500]} />
+                <Heart size={16} color={item.liked ? theme.error : theme.textTertiary} />
               </TouchableOpacity>
               <TouchableOpacity
                 style={{ marginLeft: 12 }}
                 onPress={() => setReplyToId(item.id)}
               >
-                <MessageCircle size={16} color={colors.gray[500]} />
+                <MessageCircle size={16} color={theme.textTertiary} />
               </TouchableOpacity>
             </View>
           </View>
-          <Text style={styles.commentText}>{item.text}</Text>
+          <Text style={[styles.commentText, { color: theme.text }]}>{item.text}</Text>
           {item.replies && item.replies.length > 0 && (
             <View style={{ marginTop: 8, marginLeft: 16 }}>{renderReplies(item.replies)}</View>
           )}
@@ -170,14 +173,14 @@ export default function CommentModal({
   return (
     <View style={styles.overlay}>
       <TouchableWithoutFeedback onPress={onClose}>
-        <Animated.View style={[styles.backgroundOverlay, { opacity: overlayAnim }]} />
+        <Animated.View style={[styles.backgroundOverlay, { opacity: overlayAnim, backgroundColor: theme.overlay }]} />
       </TouchableWithoutFeedback>
 
-      <Animated.View style={[styles.modalContainer, { transform: [{ translateY: slideAnim }] }]}>
+      <Animated.View style={[styles.modalContainer, { transform: [{ translateY: slideAnim }], backgroundColor: theme.modal }]}>
         <View style={styles.header}>
-          <Text style={styles.title}>{replyToId ? 'Replying...' : 'Comments'}</Text>
+          <Text style={[styles.title, { color: theme.text }]}>{replyToId ? 'Replying...' : 'Comments'}</Text>
           <TouchableOpacity onPress={onClose}>
-            <X size={22} color={colors.gray[700]} />
+            <X size={22} color={theme.textSecondary} />
           </TouchableOpacity>
         </View>
 
@@ -199,10 +202,11 @@ export default function CommentModal({
               value={commentText}
               onChangeText={setCommentText}
               placeholder={replyToId ? 'Write a reply...' : 'Add a comment...'}
-              style={styles.input}
+              style={[styles.input, { borderColor: theme.inputBorder, backgroundColor: theme.input, color: theme.text }]}
+              placeholderTextColor={theme.placeholder}
             />
-            <TouchableOpacity onPress={handleAddComment} style={styles.sendButton}>
-              <Text style={{ color: colors.white, fontWeight: '700' }}>Send</Text>
+            <TouchableOpacity onPress={handleAddComment} style={[styles.sendButton, { backgroundColor: theme.primary }]}>
+              <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>Send</Text>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
@@ -213,9 +217,8 @@ export default function CommentModal({
 
 const styles = StyleSheet.create({
   overlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'flex-end' },
-  backgroundOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.4)' },
+  backgroundOverlay: { ...StyleSheet.absoluteFillObject },
   modalContainer: {
-    backgroundColor: colors.white,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     padding: 24,
@@ -223,26 +226,25 @@ const styles = StyleSheet.create({
     maxHeight: '80%',
   },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  title: { fontSize: 18, fontWeight: '700', color: colors.dark },
+  title: { fontSize: 18, fontWeight: '700' },
   commentContainer: { marginBottom: 12 },
   commentHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  commentUsername: { fontWeight: '700', color: colors.primary },
+  commentUsername: { fontWeight: '700' },
   commentActions: { flexDirection: 'row' },
-  commentText: { marginTop: 4, color: colors.dark },
+  commentText: { marginTop: 4 },
   replyContainer: { marginTop: 6 },
-  replyUsername: { fontWeight: '600', color: colors.primary },
-  replyText: { color: colors.gray[700] },
+  replyUsername: { fontWeight: '600' },
+  replyText: {},
   replyButton: { marginTop: 2 },
-  replyBtnText: { color: colors.gray[500], fontSize: 12 },
+  replyBtnText: { fontSize: 12 },
   addCommentContainer: { flexDirection: 'row', marginTop: 12, alignItems: 'center' },
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: colors.gray[300],
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 8,
     marginRight: 8,
   },
-  sendButton: { backgroundColor: colors.primary, paddingVertical: 8, paddingHorizontal: 16, borderRadius: 24 },
+  sendButton: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 24 },
 });

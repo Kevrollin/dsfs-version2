@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Image, StyleSheet } from 'react-native';
-import { colors } from '../constants/colors';
+import { useColorScheme } from '../hooks/useColorScheme';
+import { getTheme } from '../constants/themes';
 
 interface AvatarProps {
   source: string;
@@ -15,6 +16,9 @@ export default function Avatar({
   verified = false,
   style,
 }: AvatarProps) {
+  const { colorScheme } = useColorScheme();
+  const theme = getTheme(colorScheme);
+
   const getSize = () => {
     switch (size) {
       case 'small':
@@ -36,11 +40,11 @@ export default function Avatar({
     <View style={[styles.container, { width: avatarSize, height: avatarSize }, style]}>
       <Image
         source={{ uri: source }}
-        style={[styles.avatar, { width: avatarSize, height: avatarSize }]}
+        style={[styles.avatar, { width: avatarSize, height: avatarSize, backgroundColor: theme.gray[200] }]}
       />
       {verified && (
-        <View style={styles.verifiedBadge}>
-          <View style={styles.verifiedIcon} />
+        <View style={[styles.verifiedBadge, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+          <View style={[styles.verifiedIcon, { backgroundColor: theme.primary }]} />
         </View>
       )}
     </View>
@@ -53,7 +57,6 @@ const styles = StyleSheet.create({
   },
   avatar: {
     borderRadius: 50,
-    backgroundColor: colors.lightgray,
   },
   verifiedBadge: {
     position: 'absolute',
@@ -61,17 +64,14 @@ const styles = StyleSheet.create({
     right: -2,
     width: 18,
     height: 18,
-    backgroundColor: 'white',
     borderRadius: 9,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: colors.lightgray,
   },
   verifiedIcon: {
     width: 12,
     height: 12,
-    backgroundColor: colors.primary,
     borderRadius: 6,
   },
 });

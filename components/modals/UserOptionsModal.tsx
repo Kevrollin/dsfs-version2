@@ -10,8 +10,9 @@ import {
   Alert,
   Share,
 } from 'react-native';
-import { colors } from '../../constants/colors';
 import { User, Share2, AlertCircle } from 'lucide-react-native';
+import { useColorScheme } from '../../hooks/useColorScheme';
+import { getTheme } from '../../constants/themes';
 
 const { height: screenHeight } = Dimensions.get('window');
 
@@ -32,6 +33,8 @@ export default function UserOptionsModal({
   followersCount,
   isFollowed = false,
 }: UserOptionsModalProps) {
+  const { colorScheme } = useColorScheme();
+  const theme = getTheme(colorScheme);
   const slideAnim = useRef(new Animated.Value(screenHeight)).current;
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const [followed, setFollowed] = useState(isFollowed);
@@ -70,10 +73,10 @@ export default function UserOptionsModal({
       label: followed ? `Unfollow @${username}` : `Follow @${username}`,
       icon: User,
       action: toggleFollow,
-      color: colors.dark,
+      color: theme.text,
     },
-    { label: 'Share Profile', icon: Share2, action: shareProfile, color: colors.dark },
-    { label: 'Report User', icon: AlertCircle, action: reportUser, color: colors.error },
+    { label: 'Share Profile', icon: Share2, action: shareProfile, color: theme.text },
+    { label: 'Report User', icon: AlertCircle, action: reportUser, color: theme.error },
   ];
 
   // Anim refs for options
@@ -137,20 +140,20 @@ export default function UserOptionsModal({
   return (
     <View style={styles.overlay}>
       <TouchableWithoutFeedback onPress={onClose}>
-        <Animated.View style={[styles.backgroundOverlay, { opacity: overlayAnim }]} />
+        <Animated.View style={[styles.backgroundOverlay, { opacity: overlayAnim, backgroundColor: theme.overlay }]} />
       </TouchableWithoutFeedback>
 
-      <Animated.View style={[styles.modalContainer, { transform: [{ translateY: slideAnim }] }]}>
+      <Animated.View style={[styles.modalContainer, { transform: [{ translateY: slideAnim }], backgroundColor: theme.modal }]}>
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.username}>@{username}</Text>
-            <Text style={styles.details}>
+            <Text style={[styles.username, { color: theme.text }]}>@{username}</Text>
+            <Text style={[styles.details, { color: theme.textSecondary }]}>
               {postsCount} Posts • {followersCount} Followers
             </Text>
           </View>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeText}>✕</Text>
+            <Text style={[styles.closeText, { color: theme.textSecondary }]}>✕</Text>
           </TouchableOpacity>
         </View>
 
@@ -191,10 +194,8 @@ const styles = StyleSheet.create({
   },
   backgroundOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.4)',
   },
   modalContainer: {
-    backgroundColor: colors.white,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     padding: 24,
@@ -206,10 +207,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 24,
   },
-  username: { fontSize: 18, fontWeight: '700', color: colors.dark },
-  details: { fontSize: 14, color: colors.gray[700], marginTop: 4 },
+  username: { fontSize: 18, fontWeight: '700' },
+  details: { fontSize: 14, marginTop: 4 },
   closeButton: { padding: 8 },
-  closeText: { fontSize: 20, fontWeight: '700', color: colors.gray[700] },
+  closeText: { fontSize: 20, fontWeight: '700' },
   optionButton: { flexDirection: 'row', alignItems: 'center', paddingVertical: 16 },
   optionIcon: { marginRight: 12 },
   optionText: { fontSize: 16, fontWeight: '500' },

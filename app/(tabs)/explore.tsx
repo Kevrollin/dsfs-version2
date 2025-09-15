@@ -4,10 +4,13 @@ import Avatar from '../../components/Avatar';
 import ProgressBar from '../../components/ProgressBar';
 import FundButton from '../../components/FundButton';
 import { useStudentStore } from '../../store/useStudentStore';
-import { colors } from '../../constants/colors';
+import { useColorScheme } from '../../hooks/useColorScheme';
+import { getTheme } from '../../constants/themes';
 
 export default function ExploreScreen() {
   const { students, loading, fetchStudents, fundStudent } = useStudentStore();
+  const { colorScheme } = useColorScheme();
+  const theme = getTheme(colorScheme);
 
   useEffect(() => {
     fetchStudents();
@@ -49,10 +52,10 @@ export default function ExploreScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Discover Students</Text>
-        <Text style={styles.headerSubtitle}>Support the next generation of innovators</Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={[styles.header, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
+        <Text style={[styles.headerTitle, { color: theme.text }]}>Discover Students</Text>
+        <Text style={[styles.headerSubtitle, { color: theme.textSecondary }]}>Support the next generation of innovators</Text>
       </View>
 
       <ScrollView 
@@ -61,7 +64,7 @@ export default function ExploreScreen() {
         showsVerticalScrollIndicator={false}
       >
         {students.map((student) => (
-          <View key={student.id} style={styles.studentCard}>
+          <View key={student.id} style={[styles.studentCard, { backgroundColor: theme.card }]}>
             <View style={styles.studentHeader}>
               <View style={styles.studentInfo}>
                 <Avatar
@@ -70,10 +73,10 @@ export default function ExploreScreen() {
                   verified={student.isVerified}
                 />
                 <View style={styles.studentDetails}>
-                  <Text style={styles.studentName}>{student.name}</Text>
-                  <Text style={styles.studentUniversity}>{student.university}</Text>
-                  <Text style={styles.studentCourse}>{student.course} • {student.year}</Text>
-                  <Text style={styles.studentGPA}>GPA: {student.gpa}</Text>
+                  <Text style={[styles.studentName, { color: theme.text }]}>{student.name}</Text>
+                  <Text style={[styles.studentUniversity, { color: theme.primary }]}>{student.university}</Text>
+                  <Text style={[styles.studentCourse, { color: theme.textSecondary }]}>{student.course} • {student.year}</Text>
+                  <Text style={[styles.studentGPA, { color: theme.textTertiary }]}>GPA: {student.gpa}</Text>
                 </View>
               </View>
               <FundButton
@@ -82,7 +85,7 @@ export default function ExploreScreen() {
               />
             </View>
 
-            <Text style={styles.studentBio}>{student.bio}</Text>
+            <Text style={[styles.studentBio, { color: theme.textSecondary }]}>{student.bio}</Text>
 
             <View style={styles.fundingSection}>
               <ProgressBar
@@ -92,26 +95,26 @@ export default function ExploreScreen() {
               />
             </View>
 
-            <View style={styles.statsRow}>
+            <View style={[styles.statsRow, { borderTopColor: theme.border }]}>
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{student.supporters}</Text>
-                <Text style={styles.statLabel}>Supporters</Text>
+                <Text style={[styles.statNumber, { color: theme.text }]}>{student.supporters}</Text>
+                <Text style={[styles.statLabel, { color: theme.textTertiary }]}>Supporters</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>${student.totalFunded.toLocaleString()}</Text>
-                <Text style={styles.statLabel}>Total Funded</Text>
+                <Text style={[styles.statNumber, { color: theme.text }]}>${student.totalFunded.toLocaleString()}</Text>
+                <Text style={[styles.statLabel, { color: theme.textTertiary }]}>Total Funded</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{student.projects.length}</Text>
-                <Text style={styles.statLabel}>Projects</Text>
+                <Text style={[styles.statNumber, { color: theme.text }]}>{student.projects.length}</Text>
+                <Text style={[styles.statLabel, { color: theme.textTertiary }]}>Projects</Text>
               </View>
             </View>
 
             {student.achievements.length > 0 && (
-              <View style={styles.achievementsSection}>
-                <Text style={styles.achievementsTitle}>Key Achievements</Text>
+              <View style={[styles.achievementsSection, { borderTopColor: theme.border }]}>
+                <Text style={[styles.achievementsTitle, { color: theme.text }]}>Key Achievements</Text>
                 {student.achievements.slice(0, 2).map((achievement, index) => (
-                  <Text key={index} style={styles.achievement}>• {achievement}</Text>
+                  <Text key={index} style={[styles.achievement, { color: theme.textSecondary }]}>• {achievement}</Text>
                 ))}
               </View>
             )}
@@ -125,25 +128,20 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.softwhite,
   },
   header: {
     paddingTop: 60,
     paddingHorizontal: 20,
     paddingBottom: 20,
-    backgroundColor: 'white',
     borderBottomWidth: 1,
-    borderBottomColor: colors.lightgray,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: colors.dark,
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: colors.gray[600],
   },
   scrollView: {
     flex: 1,
@@ -152,7 +150,6 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   studentCard: {
-    backgroundColor: 'white',
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
@@ -183,28 +180,23 @@ const styles = StyleSheet.create({
   studentName: {
     fontSize: 18,
     fontWeight: '600',
-    color: colors.dark,
     marginBottom: 4,
   },
   studentUniversity: {
     fontSize: 14,
-    color: colors.primary,
     fontWeight: '500',
     marginBottom: 2,
   },
   studentCourse: {
     fontSize: 14,
-    color: colors.gray[600],
     marginBottom: 2,
   },
   studentGPA: {
     fontSize: 12,
-    color: colors.gray[500],
     fontWeight: '500',
   },
   studentBio: {
     fontSize: 14,
-    color: colors.gray[700],
     lineHeight: 20,
     marginBottom: 16,
   },
@@ -216,7 +208,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingVertical: 16,
     borderTopWidth: 1,
-    borderTopColor: colors.lightgray,
     marginBottom: 16,
   },
   statItem: {
@@ -225,27 +216,22 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.dark,
   },
   statLabel: {
     fontSize: 12,
-    color: colors.gray[500],
     marginTop: 4,
   },
   achievementsSection: {
     borderTopWidth: 1,
-    borderTopColor: colors.lightgray,
     paddingTop: 16,
   },
   achievementsTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.dark,
     marginBottom: 8,
   },
   achievement: {
     fontSize: 13,
-    color: colors.gray[600],
     lineHeight: 18,
     marginBottom: 4,
   },
