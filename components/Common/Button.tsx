@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { colors } from '../../constants/colors';
+import { useColorScheme } from '../../hooks/useColorScheme';
+import { getTheme } from '../../constants/themes';
 
 interface ButtonProps {
   title: string;
@@ -21,15 +22,18 @@ export default function Button({
   disabled = false,
   style,
 }: ButtonProps) {
+  const { colorScheme } = useColorScheme();
+  const theme = getTheme(colorScheme);
+
   const getButtonStyle = () => {
     let baseStyle = [styles.button];
     
     if (variant === 'primary') {
-      baseStyle.push(styles.primaryButton);
+      baseStyle.push({ backgroundColor: theme.primary });
     } else if (variant === 'secondary') {
-      baseStyle.push(styles.secondaryButton);
+      baseStyle.push({ backgroundColor: theme.gray[200] });
     } else if (variant === 'outline') {
-      baseStyle.push(styles.outlineButton);
+      baseStyle.push({ backgroundColor: 'transparent', borderWidth: 1, borderColor: theme.primary });
     }
     
     if (size === 'small') {
@@ -53,11 +57,11 @@ export default function Button({
     let textStyle = [styles.buttonText];
     
     if (variant === 'primary') {
-      textStyle.push(styles.primaryText);
+      textStyle.push({ color: '#FFFFFF' });
     } else if (variant === 'secondary') {
-      textStyle.push(styles.secondaryText);
+      textStyle.push({ color: theme.text });
     } else if (variant === 'outline') {
-      textStyle.push(styles.outlineText);
+      textStyle.push({ color: theme.primary });
     }
     
     if (size === 'small') {
@@ -79,7 +83,7 @@ export default function Button({
       {loading ? (
         <ActivityIndicator 
           size="small" 
-          color={variant === 'primary' ? 'white' : colors.primary} 
+        color={variant === 'primary' ? '#FFFFFF' : theme.primary} 
         />
       ) : (
         <Text style={getTextStyle()}>{title}</Text>
@@ -96,17 +100,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 48,
-  },
-  primaryButton: {
-    backgroundColor: colors.primary,
-  },
-  secondaryButton: {
-    backgroundColor: colors.lightgray,
-  },
-  outlineButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: colors.primary,
   },
   disabledButton: {
     opacity: 0.5,
@@ -125,15 +118,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
-  },
-  primaryText: {
-    color: 'white',
-  },
-  secondaryText: {
-    color: colors.dark,
-  },
-  outlineText: {
-    color: colors.primary,
   },
   smallText: {
     fontSize: 14,

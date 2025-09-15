@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TextInput, Text, StyleSheet } from 'react-native';
-import { colors } from '../../constants/colors';
+import { useColorScheme } from '../../hooks/useColorScheme';
+import { getTheme } from '../../constants/themes';
 
 interface InputProps {
   label?: string;
@@ -25,24 +26,32 @@ export default function Input({
   style,
   error,
 }: InputProps) {
+  const { colorScheme } = useColorScheme();
+  const theme = getTheme(colorScheme);
+
   return (
     <View style={[styles.container, style]}>
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label && <Text style={[styles.label, { color: theme.text }]}>{label}</Text>}
       <TextInput
         style={[
           styles.input,
+          { 
+            borderColor: theme.inputBorder,
+            backgroundColor: theme.input,
+            color: theme.text,
+          },
           multiline && styles.multilineInput,
-          error && styles.errorInput,
+          error && { borderColor: theme.error },
         ]}
         placeholder={placeholder}
-        placeholderTextColor={colors.gray[500]}
+        placeholderTextColor={theme.placeholder}
         value={value}
         onChangeText={onChangeText}
         secureTextEntry={secureTextEntry}
         multiline={multiline}
         numberOfLines={numberOfLines}
       />
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && <Text style={[styles.errorText, { color: theme.error }]}>{error}</Text>}
     </View>
   );
 }
@@ -54,29 +63,21 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '500',
-    color: colors.dark,
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: colors.lightgray,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    backgroundColor: 'white',
-    color: colors.dark,
   },
   multilineInput: {
     paddingTop: 12,
     textAlignVertical: 'top',
   },
-  errorInput: {
-    borderColor: colors.error,
-  },
   errorText: {
     fontSize: 12,
-    color: colors.error,
     marginTop: 4,
   },
 });

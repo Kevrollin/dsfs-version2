@@ -3,11 +3,15 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'rea
 import { Settings, UserPlus, GraduationCap } from 'lucide-react-native';
 import Avatar from '../../components/Avatar';
 import Button from '../../components/Common/Button';
+import ThemeToggle from '../../components/ThemeToggle';
 import { useAuthStore } from '../../store/useAuthStore';
-import { colors } from '../../constants/colors';
+import { useColorScheme } from '../../hooks/useColorScheme';
+import { getTheme } from '../../constants/themes';
 
 export default function ProfileScreen() {
   const { user, isStudentRegistered, registerAsStudent } = useAuthStore();
+  const { colorScheme } = useColorScheme();
+  const theme = getTheme(colorScheme);
 
   const handleStudentAction = () => {
     if (!isStudentRegistered) {
@@ -43,10 +47,11 @@ export default function ProfileScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
+        <ThemeToggle style={styles.themeToggle} showLabel={false} />
         <TouchableOpacity style={styles.settingsButton}>
-          <Settings size={24} color={colors.dark} />
+          <Settings size={24} color={theme.text} />
         </TouchableOpacity>
       </View>
 
@@ -57,6 +62,7 @@ export default function ProfileScreen() {
       >
         {/* Profile Info */}
         <View style={styles.profileSection}>
+          <View style={[styles.profileSection, { backgroundColor: theme.surface }]}>
           <Avatar
             source={user.avatar}
             size="xlarge"
@@ -64,23 +70,23 @@ export default function ProfileScreen() {
             style={styles.profileAvatar}
           />
           
-          <Text style={styles.name}>{user.name}</Text>
-          <Text style={styles.username}>@{user.username}</Text>
+          <Text style={[styles.name, { color: theme.text }]}>{user.name}</Text>
+          <Text style={[styles.username, { color: theme.textSecondary }]}>{user.username}</Text>
           
-          <Text style={styles.bio}>{user.bio}</Text>
+          <Text style={[styles.bio, { color: theme.textSecondary }]}>{user.bio}</Text>
           
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{user.followers.toLocaleString()}</Text>
-              <Text style={styles.statLabel}>Followers</Text>
+              <Text style={[styles.statNumber, { color: theme.text }]}>{user.followers.toLocaleString()}</Text>
+              <Text style={[styles.statLabel, { color: theme.textTertiary }]}>Followers</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{user.following.toLocaleString()}</Text>
-              <Text style={styles.statLabel}>Following</Text>
+              <Text style={[styles.statNumber, { color: theme.text }]}>{user.following.toLocaleString()}</Text>
+              <Text style={[styles.statLabel, { color: theme.textTertiary }]}>Following</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>12</Text>
-              <Text style={styles.statLabel}>Posts</Text>
+              <Text style={[styles.statNumber, { color: theme.text }]}>12</Text>
+              <Text style={[styles.statLabel, { color: theme.textTertiary }]}>Posts</Text>
             </View>
           </View>
 
@@ -98,31 +104,32 @@ export default function ProfileScreen() {
 
           {/* Student Badge */}
           {user.isStudent && (
-            <View style={styles.studentBadgeContainer}>
-              <GraduationCap size={20} color={colors.primary} />
-              <Text style={styles.studentBadgeText}>Verified Student</Text>
+            <View style={[styles.studentBadgeContainer, { backgroundColor: theme.surfaceSecondary }]}>
+              <GraduationCap size={20} color={theme.primary} />
+              <Text style={[styles.studentBadgeText, { color: theme.primary }]}>Verified Student</Text>
             </View>
           )}
+        </View>
         </View>
 
         {/* Content Tabs */}
         <View style={styles.tabsSection}>
-          <TouchableOpacity style={[styles.tab, styles.activeTab]}>
-            <Text style={[styles.tabText, styles.activeTabText]}>Posts</Text>
+          <TouchableOpacity style={[styles.tab, styles.activeTab, { backgroundColor: theme.surface, borderBottomColor: theme.primary }]}>
+            <Text style={[styles.tabText, styles.activeTabText, { color: theme.primary }]}>Posts</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.tab}>
-            <Text style={styles.tabText}>Likes</Text>
+          <TouchableOpacity style={[styles.tab, { backgroundColor: theme.surface }]}>
+            <Text style={[styles.tabText, { color: theme.textTertiary }]}>Likes</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.tab}>
-            <Text style={styles.tabText}>Funded</Text>
+          <TouchableOpacity style={[styles.tab, { backgroundColor: theme.surface }]}>
+            <Text style={[styles.tabText, { color: theme.textTertiary }]}>Funded</Text>
           </TouchableOpacity>
         </View>
 
         {/* Coming Soon Placeholder */}
         <View style={styles.comingSoonSection}>
-          <UserPlus size={48} color={colors.gray[300]} style={styles.comingSoonIcon} />
-          <Text style={styles.comingSoonTitle}>Posts Coming Soon</Text>
-          <Text style={styles.comingSoonText}>
+          <UserPlus size={48} color={theme.textTertiary} style={styles.comingSoonIcon} />
+          <Text style={[styles.comingSoonTitle, { color: theme.textSecondary }]}>Posts Coming Soon</Text>
+          <Text style={[styles.comingSoonText, { color: theme.textTertiary }]}>
             Your posts and activity will appear here once you start sharing content.
           </Text>
         </View>
@@ -134,16 +141,17 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.softwhite,
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingTop: 60,
     paddingHorizontal: 20,
     paddingBottom: 20,
-    backgroundColor: 'white',
+  },
+  themeToggle: {
+    marginRight: 'auto',
   },
   settingsButton: {
     padding: 8,
@@ -155,11 +163,9 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   profileSection: {
-    backgroundColor: 'white',
     padding: 20,
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: colors.lightgray,
   },
   profileAvatar: {
     marginBottom: 16,
@@ -167,17 +173,14 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: '700',
-    color: colors.dark,
     marginBottom: 4,
   },
   username: {
     fontSize: 16,
-    color: colors.gray[600],
     marginBottom: 12,
   },
   bio: {
     fontSize: 16,
-    color: colors.gray[700],
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 20,
@@ -193,11 +196,9 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 20,
     fontWeight: '700',
-    color: colors.dark,
   },
   statLabel: {
     fontSize: 14,
-    color: colors.gray[500],
     marginTop: 4,
   },
   actionButton: {
@@ -207,7 +208,6 @@ const styles = StyleSheet.create({
   studentBadgeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.softwhite,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
@@ -215,14 +215,11 @@ const styles = StyleSheet.create({
   studentBadgeText: {
     marginLeft: 6,
     fontSize: 14,
-    color: colors.primary,
     fontWeight: '600',
   },
   tabsSection: {
     flexDirection: 'row',
-    backgroundColor: 'white',
     borderBottomWidth: 1,
-    borderBottomColor: colors.lightgray,
   },
   tab: {
     flex: 1,
@@ -232,15 +229,12 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   activeTab: {
-    borderBottomColor: colors.primary,
   },
   tabText: {
     fontSize: 16,
-    color: colors.gray[500],
     fontWeight: '500',
   },
   activeTabText: {
-    color: colors.primary,
     fontWeight: '600',
   },
   comingSoonSection: {
@@ -256,13 +250,11 @@ const styles = StyleSheet.create({
   comingSoonTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: colors.gray[600],
     marginBottom: 8,
     textAlign: 'center',
   },
   comingSoonText: {
     fontSize: 16,
-    color: colors.gray[500],
     textAlign: 'center',
     lineHeight: 22,
   },

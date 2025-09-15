@@ -12,7 +12,8 @@ import { Heart, MessageCircle, Share, Check, MoreHorizontal } from 'lucide-react
 import Avatar from './Avatar';
 import FundButton from './FundButton';
 import FundingModal from './modals/FundingModal';
-import { colors } from '../constants/colors';
+import { useColorScheme } from '../hooks/useColorScheme';
+import { getTheme } from '../constants/themes';
 import { useFeedStore } from '../store/useFeedStore';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -33,6 +34,8 @@ export default function PostCard({
   onOpenComments,
 }: PostCardProps) {
   const { likePost } = useFeedStore();
+  const { colorScheme } = useColorScheme();
+  const theme = getTheme(colorScheme);
   const [liked, setLiked] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [fundModalVisible, setFundModalVisible] = useState(false);
@@ -67,26 +70,26 @@ export default function PostCard({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.card }]}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.userInfo}>
           <View>
             <Avatar source={post.user?.avatar} size="medium" verified={post.user?.isVerified} />
             {post.user?.isStudent && (
-              <View style={styles.studentTick}>
-                <Check size={12} color={colors.white} />
+              <View style={[styles.studentTick, { backgroundColor: theme.primary, borderColor: theme.card }]}>
+                <Check size={12} color="#FFFFFF" />
               </View>
             )}
           </View>
           <View style={styles.userDetails}>
-            <Text style={styles.username}>{post.user?.username}</Text>
-            <Text style={styles.timestamp}>{formatDate(post.timestamp)}</Text>
+            <Text style={[styles.username, { color: theme.text }]}>{post.user?.username}</Text>
+            <Text style={[styles.timestamp, { color: theme.textTertiary }]}>{formatDate(post.timestamp)}</Text>
           </View>
         </View>
 
         <TouchableOpacity style={styles.moreButton} onPress={onOpenUserModal}>
-          <MoreHorizontal size={24} color={colors.gray[700]} />
+          <MoreHorizontal size={24} color={theme.textSecondary} />
         </TouchableOpacity>
       </View>
 
@@ -118,26 +121,26 @@ export default function PostCard({
           <TouchableOpacity onPress={handleLike} style={styles.actionButton}>
             <Heart
               size={24}
-              color={liked ? colors.error : colors.gray[700]}
-              fill={liked ? colors.error : 'transparent'}
+              color={liked ? theme.error : theme.textSecondary}
+              fill={liked ? theme.error : 'transparent'}
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={onOpenComments} style={styles.actionButton}>
-            <MessageCircle size={24} color={colors.gray[700]} />
+            <MessageCircle size={24} color={theme.textSecondary} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton}>
-            <Share size={24} color={colors.gray[700]} />
+            <Share size={24} color={theme.textSecondary} />
           </TouchableOpacity>
         </View>
         {post.isFundable && <FundButton size="small" onPress={() => handleFund()} />}
       </View>
 
       {/* Likes */}
-      <Text style={styles.likes}>{post.likes.toLocaleString()} likes</Text>
+      <Text style={[styles.likes, { color: theme.text }]}>{post.likes.toLocaleString()} likes</Text>
 
       {/* Caption */}
-      <Text style={styles.caption}>
-        <Text style={styles.username}>{post.user?.username}</Text> {post.caption}
+      <Text style={[styles.caption, { color: theme.text }]}>
+        <Text style={[styles.username, { color: theme.text }]}>{post.user?.username}</Text> {post.caption}
       </Text>
 
       {/* Funding Modal */}
@@ -154,7 +157,6 @@ export default function PostCard({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.white,
     marginVertical: 8,
     borderRadius: 12,
     overflow: 'hidden',
@@ -172,20 +174,18 @@ const styles = StyleSheet.create({
   },
   userInfo: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   userDetails: { marginLeft: 12, justifyContent: 'center' },
-  username: { fontSize: 16, fontWeight: '600', color: colors.dark },
-  timestamp: { fontSize: 12, color: colors.gray[500], marginTop: 2 },
+  username: { fontSize: 16, fontWeight: '600' },
+  timestamp: { fontSize: 12, marginTop: 2 },
   studentTick: {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: colors.primary,
     width: 18,
     height: 18,
     borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.white,
   },
   moreButton: { marginLeft: 12 },
   carouselWrapper: { position: 'relative' },
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: colors.dark,
+    backgroundColor: '#FFFFFF',
     marginHorizontal: 4,
     opacity: 0.3,
   },
@@ -218,6 +218,6 @@ const styles = StyleSheet.create({
   },
   leftActions: { flexDirection: 'row' },
   actionButton: { marginRight: 16 },
-  likes: { paddingHorizontal: 16, fontSize: 14, fontWeight: '600', color: colors.dark, marginBottom: 6 },
-  caption: { paddingHorizontal: 16, fontSize: 14, color: colors.dark, lineHeight: 20, marginBottom: 8 },
+  likes: { paddingHorizontal: 16, fontSize: 14, fontWeight: '600', marginBottom: 6 },
+  caption: { paddingHorizontal: 16, fontSize: 14, lineHeight: 20, marginBottom: 8 },
 });

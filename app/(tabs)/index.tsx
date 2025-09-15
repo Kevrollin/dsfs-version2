@@ -11,13 +11,16 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Plus, Bell } from 'lucide-react-native';
 import PostCard from '../../components/PostCard';
 import { useFeedStore } from '../../store/useFeedStore';
-import { colors } from '../../constants/colors';
+import { useColorScheme } from '../../hooks/useColorScheme';
+import { getTheme } from '../../constants/themes';
 import UserOptionsModal from '../../components/modals/UserOptionsModal';
 import CommentModal from '../../components/modals/CommentSectionModal';
 import FundingModal from '../../components/modals/FundingModal';
 
 export default function FeedScreen() {
   const { posts, loading, refreshPosts, fundPost } = useFeedStore();
+  const { colorScheme } = useColorScheme();
+  const theme = getTheme(colorScheme);
   const [refreshing, setRefreshing] = useState(false);
 
   // User modal state
@@ -84,37 +87,37 @@ export default function FeedScreen() {
     <View style={styles.container}>
       {/* Gradient Header */}
       <LinearGradient
-        colors={colors.gradients.primary}
+        colors={[theme.primary, theme.accent]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.header}
       >
-        <Text style={styles.headerTitle}>FundHub</Text>
+        <Text style={[styles.headerTitle, { color: '#FFFFFF' }]}>FundHub</Text>
         <View style={styles.headerActions}>
           <TouchableOpacity style={styles.iconButton}>
-            <Bell size={22} color={colors.white} />
+            <Bell size={22} color="#FFFFFF" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton}>
-            <Plus size={22} color={colors.white} />
+            <Plus size={22} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
       </LinearGradient>
 
       {/* Feed Content */}
       <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        style={[styles.scrollView, { backgroundColor: theme.background }]}
+        contentContainerStyle={[styles.scrollContent]}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} />
         }
         showsVerticalScrollIndicator={false}
       >
         {loading && posts.length === 0 ? (
-          <Text style={styles.loadingText}>Loading projects...</Text>
+          <Text style={[styles.loadingText, { color: theme.textTertiary }]}>Loading projects...</Text>
         ) : posts.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>No projects yet 👀</Text>
-            <Text style={styles.emptySubtext}>Pull down to refresh or add a new project.</Text>
+            <Text style={[styles.emptyText, { color: theme.text }]}>No projects yet 👀</Text>
+            <Text style={[styles.emptySubtext, { color: theme.textTertiary }]}>Pull down to refresh or add a new project.</Text>
           </View>
         ) : (
           posts.map((post) => (
@@ -173,7 +176,7 @@ export default function FeedScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.softwhite },
+  container: { flex: 1 },
   header: {
     paddingTop: 12,
     paddingHorizontal: 16,
@@ -183,13 +186,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     elevation: 4,
   },
-  headerTitle: { color: colors.white, fontSize: 22, fontWeight: '700' },
+  headerTitle: { fontSize: 22, fontWeight: '700' },
   headerActions: { flexDirection: 'row', alignItems: 'center' },
   iconButton: { marginLeft: 16 },
   scrollView: { flex: 1 },
   scrollContent: { paddingHorizontal: 12, paddingTop: 12, paddingBottom: 40 },
-  loadingText: { textAlign: 'center', color: colors.gray[500], marginTop: 40, fontSize: 16 },
+  loadingText: { textAlign: 'center', marginTop: 40, fontSize: 16 },
   emptyState: { alignItems: 'center', marginTop: 60, paddingHorizontal: 24 },
-  emptyText: { fontSize: 18, fontWeight: '600', color: colors.dark, marginBottom: 6 },
-  emptySubtext: { fontSize: 14, color: colors.gray[500], textAlign: 'center' },
+  emptyText: { fontSize: 18, fontWeight: '600', marginBottom: 6 },
+  emptySubtext: { fontSize: 14, textAlign: 'center' },
 });
