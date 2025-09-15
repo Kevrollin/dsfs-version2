@@ -10,7 +10,7 @@ import {
   Alert,
   Share,
 } from 'react-native';
-import { User, Share2, AlertCircle } from 'lucide-react-native';
+import { User, Share2, CircleAlert as AlertCircle } from 'lucide-react-native';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import { getTheme } from '../../constants/themes';
 
