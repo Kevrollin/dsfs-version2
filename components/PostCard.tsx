@@ -8,7 +8,7 @@ import {
   Dimensions,
   FlatList,
 } from 'react-native';
-import { Heart, MessageCircle, Share, Check, MoreHorizontal } from 'lucide-react-native';
+import { Heart, MessageCircle, Share, Check, MoveHorizontal as MoreHorizontal } from 'lucide-react-native';
 import Avatar from './Avatar';
 import FundButton from './FundButton';
 import FundingModal from './modals/FundingModal';
