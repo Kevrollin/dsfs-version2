@@ -1,0 +1,42 @@
+export const mockNotifications = [
+  {
+    id: '1',
+    type: 'funding',
+    message: 'Emma Johnson funded your AI Healthcare project with $50',
+    timestamp: '2024-01-15T14:30:00Z',
+    avatar: 'https://images.pexels.com/photos/762020/pexels-photo-762020.jpeg?auto=compress&cs=tinysrgb&w=150',
+    isRead: false,
+  },
+  {
+    id: '2',
+    type: 'like',
+    message: 'Mike Rodriguez liked your post about neural networks',
+    timestamp: '2024-01-15T12:15:00Z',
+    avatar: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=150',
+    isRead: false,
+  },
+  {
+    id: '3',
+    type: 'verification',
+    message: 'Your student verification has been approved!',
+    timestamp: '2024-01-14T09:00:00Z',
+    avatar: null,
+    isRead: true,
+  },
+  {
+    id: '4',
+    type: 'funding',
+    message: 'Anonymous supporter funded your project with $25',
+    timestamp: '2024-01-13T16:45:00Z',
+    avatar: null,
+    isRead: true,
+  },
+  {
+    id: '5',
+    type: 'comment',
+    message: 'Alex Kim commented on your robotics project post',
+    timestamp: '2024-01-13T11:20:00Z',
+    avatar: 'https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg?auto=compress&cs=tinysrgb&w=150',
+    isRead: true,
+  },
+];
